@@ -1,0 +1,16 @@
+if(MESSAGE_TYPE == 8){
+	printLn(noteNameFromNumber(BYTE_1) # " (" # BYTE_1 # ") off with speed " # BYTE_2 # " on channel " # CHANNEL);
+}else if(MESSAGE_TYPE == 9){
+	printLn(noteNameFromNumber(BYTE_1) # " (" # BYTE_1 # ") on with speed " # BYTE_2 # " on channel " # CHANNEL);
+}else if(MESSAGE_TYPE == 10){
+	printLn("Polyphonic aftertouch on note " # noteNameFromNumber(BYTE_1) # " (" # BYTE_1 # ") with pressure " # BYTE_2 # " on channel " # CHANNEL);
+}else if(MESSAGE_TYPE == 11){
+	printLn("Control change " # BYTE_1 # " with value " # BYTE_2 # " on channel " # CHANNEL);
+}else if(MESSAGE_TYPE == 12){
+	printLn("Program change " # BYTE_1 # " on channel " # CHANNEL);
+}else if(MESSAGE_TYPE == 13){
+	printLn("Channel aftertouch with pressure " # BYTE_1 # " on channel " # CHANNEL);
+}else if(MESSAGE_TYPE == 14){
+	printLn("Channel aftertouch with pressure " # BYTE_1 # " on channel " # CHANNEL);
+}
+sendToDefault(MESSAGE_TYPE, CHANNEL, BYTE_1, BYTE_2);
