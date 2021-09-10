@@ -1,0 +1,6 @@
+if(MESSAGE_TYPE == 8 || MESSAGE_TYPE == 9 || MESSAGE_TYPE == 10){
+	if(BYTE_1 < 64){
+		CHANNEL = CHANNEL + 1;
+	}
+}
+sendToDefault(MESSAGE_TYPE, CHANNEL, BYTE_1, BYTE_2);
