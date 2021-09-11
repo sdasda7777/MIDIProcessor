@@ -28,7 +28,7 @@ int main(int argc, char ** argv){
 	
 	if(argc == 1){
 		//Prints usage
-		std::cout << "Usage: " << argv[0] << " -i 'Input Port Name' -o 'Output Port Name' < scriptName.midiproc" << std::endl;
+		std::cout << "Usage: " << argv[0] << " -i 'Input Port Name' -o 'Output Port Name' -f scriptName.midiproc" << std::endl;
 		#if defined( __LINUX_ALSA__ ) or defined( __UNIX_JACK__ )
 			std::cout << "(Nonexistent ports will be created)" << std::endl;
 		#endif
