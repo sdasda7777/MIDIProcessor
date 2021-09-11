@@ -34,9 +34,9 @@ Following is the table of operators, operators on top line have highest preceden
 | i+j, i-j, e#f | Addition, Subtraction, Concatenation |
 | i<j, i<=j, i>j, i>=j | Less than, Less than or equal, Greater than, Greater than or equal |
 | e==f, e!=f | Equal, Not equal |
-| e&f | Bitwise and |
-| e^f | Bitwise xor |
-| e\|f | Bitwise or |
+| i&j | Bitwise and |
+| i^j | Bitwise xor |
+| j\|j | Bitwise or |
 | e&&f | Logical and |
 | e\|\|f | Logical or |
 | e=f | Assignment |
