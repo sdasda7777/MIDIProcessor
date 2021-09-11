@@ -95,5 +95,8 @@ When you write `//`, rest of the line gets ignored, so you can add comments to y
 #### Can I use this program commercially for free? Can I share it with my friends? Can I pack it with my own project and sell it as a whole? Can I fork it and implement class structure?
 Yes, yes, yes and yes. Though I don't know why you would do the last thing.
 
+#### Does that mean you are renouncing ownership of the code? Can I claim its ownership? Can I publish the code under my own name?
+No, of course not. Each line of code belongs to its respective author, as per current legislature.
+
 #### What editor/IDE did you use for development?
 I used Gedit for development of the old project that I took most of the code from and Mousepad for refactoring it into MIDIProcessor. I liked Gedit better, but I didn't like GNOME all that much.
