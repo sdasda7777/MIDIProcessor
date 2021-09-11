@@ -60,6 +60,7 @@ Following is the table of functions.
 | number printLn(string s) | Prints string s to console, then prints new line. Returns 1. |
 | number noteNameFromNumber(number n) | Returns name and octave from its number in the MIDI standard. |
 | number sendToDefault(number message_type, number channel, number byte1, number byte2) | Attempts to send specified message to default output port. |
+| number send(string port, number message_type, number channel, number byte1, number byte2) | Attempts to send specified message to specified output port. |
 
 ### Control structures
 #### if/else if/else
