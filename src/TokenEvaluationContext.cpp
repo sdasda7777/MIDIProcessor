@@ -48,8 +48,19 @@ TokenEvaluationContext::TokenEvaluationContext(Token * rootNode, std::map<std::s
 				std::cout << "Output port '" << *defaultOutputPortName << "' not found" << std::endl;
 			#endif
 		}
+		if(midiOut->isPortOpen()){
+			m_openOutputPorts[*defaultOutputPortName] = midiOut;
+		}
 	}else{
 		std::cout << "No output port specified" << std::endl;
+	}
+}
+
+TokenEvaluationContext::~TokenEvaluationContext(){
+	for(std::map<std::string, RtMidiOut*>::iterator it = m_openOutputPorts.begin(); it != m_openOutputPorts.begin(); ++it){
+		if((*it).first != *m_defaultOutputPortName){
+			delete (*it).second;
+		}
 	}
 }
 
@@ -91,7 +102,51 @@ bool TokenEvaluationContext::eraseVariable(std::string name){
 	return false;
 }
 
-bool TokenEvaluationContext::sendToDefault(unsigned char messageType, unsigned char channel, unsigned char byte1, unsigned char byte2) {			
+bool TokenEvaluationContext::sendToDefault(unsigned char messageType, unsigned char channel, unsigned char byte1, unsigned char byte2){
+	std::vector<unsigned char> message;
+	constructMessage(message, messageType, channel, byte1, byte2);
+	m_midiOut->sendMessage(&message);
+	
+	return true;
+}
+
+bool TokenEvaluationContext::send(const std::string & portName, unsigned char messageType, unsigned char channel, unsigned char byte1, unsigned char byte2){
+	std::map<std::string, RtMidiOut*>::iterator it = m_openOutputPorts.find(portName);
+	
+	//If not open yet, tries to open new existin port
+	if(it == m_openOutputPorts.end()){
+		unsigned int outPortsCnt = m_midiOut->getPortCount();
+		for(unsigned int porti = 0; porti < outPortsCnt; ++porti){
+			if(m_midiOut->getPortName(porti) == portName){
+				RtMidiOut * tmprt = new RtMidiOut();
+				tmprt->openPort(porti);
+				m_openOutputPorts[portName] = tmprt;
+				break;
+			}
+		}
+		it = m_openOutputPorts.find(portName);
+	}
+	
+	//If not open yet, either returns false or opens virtual
+	if(it == m_openOutputPorts.end()){
+		#ifdef __WINDOWS_MM__
+			return false;
+		#else
+			RtMidiOut * tmprt = new RtMidiOut();
+			tmprt->openVirtualPort(portName);
+			m_openOutputPorts[portName] = tmprt;
+			it = m_openOutputPorts.find(portName);
+		#endif	
+	}
+	
+	std::vector<unsigned char> message;
+	constructMessage(message, messageType, channel, byte1, byte2);
+	(*it).second->sendMessage(&message);
+	
+	return true;
+}
+
+void TokenEvaluationContext::constructMessage(std::vector<unsigned char> & message, unsigned char messageType, unsigned char channel, unsigned char byte1, unsigned char byte2){
 	if(messageType < 8)
 		messageType = 8;
 	else if(messageType > 15)
@@ -103,14 +158,9 @@ bool TokenEvaluationContext::sendToDefault(unsigned char messageType, unsigned c
 	if(byte2 > 127 && byte2 != (unsigned char) -1)
 		byte2 = 127;
 	
-	std::vector<unsigned char> message;
-	
 	message.push_back((messageType << 4) | channel);
 	message.push_back(byte1);
 	if(byte2 != (unsigned char) -1){
 		message.push_back(byte2);
 	}
-	m_midiOut->sendMessage(&message);
-	
-	return true;
 }

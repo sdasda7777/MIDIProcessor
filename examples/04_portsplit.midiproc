@@ -1,0 +1,16 @@
+if(!isSet(binary)){binary = 0;}
+
+if(MESSAGE_TYPE == 9 || MESSAGE_TYPE == 10){
+	if(binary == 0){
+		send("PORT1", MESSAGE_TYPE, CHANNEL, BYTE_1, BYTE_2);
+	}else{
+		send("PORT2", MESSAGE_TYPE, CHANNEL, BYTE_1, BYTE_2);
+	}
+}
+
+if(MESSAGE_TYPE == 8){
+	send("PORT1", MESSAGE_TYPE, CHANNEL, BYTE_1, BYTE_2);
+	send("PORT2", MESSAGE_TYPE, CHANNEL, BYTE_1, BYTE_2);
+}
+
+binary = binary ^ 1;

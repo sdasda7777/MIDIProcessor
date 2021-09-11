@@ -15,6 +15,7 @@ class TokenEvaluationContext{
 	RtMidiOut * m_midiOut;
 	std::string * m_defaultInputPortName;
 	std::string * m_defaultOutputPortName;
+	std::map<std::string, RtMidiOut*> m_openOutputPorts;
 	
 public:
 	/**
@@ -29,6 +30,11 @@ public:
 	TokenEvaluationContext(Token * rootNode, std::map<std::string, Token*> * variables, 
 							RtMidiIn * midiIn, RtMidiOut * midiOut,
 							std::string * defaultInputPortName, std::string * defaultOutputPortName);
+	
+	/**
+	 * Deletes newly created RtMidiOut instances
+	 */
+	~TokenEvaluationContext();
 	
 	/**
 	 * Returns pointer to root token
@@ -79,4 +85,26 @@ public:
 	 * @returns					true if successfully sent
 	 */
 	bool sendToDefault(unsigned char messageType, unsigned char channel, unsigned char byte1, unsigned char byte2);
+	
+	/**
+	 * Attempts to send message to specified out port
+	 * @param[in]	portName	name of the output port
+	 * @param[in]	messageType	type of the midi message (8-15)
+	 * @param[in]	channel		number of the channel (0-15)
+	 * @param[in]	byte1		value of the first byte (0-127)
+	 * @param[in]	byte2		value of the second byte (0-127) or -1 if not applicable
+	 * @returns					true if successfully sent
+	 */
+	bool send(const std::string & portName, unsigned char messageType, unsigned char channel, unsigned char byte1, unsigned char byte2);
+private:
+	
+	/**
+	 * Constructs well formed message
+	 * @param[out]	message		output buffer
+	 * @param[in]	messageType	type of the midi message (8-15)
+	 * @param[in]	channel		number of the channel (0-15)
+	 * @param[in]	byte1		value of the first byte (0-127)
+	 * @param[in]	byte2		value of the second byte (0-127) or -1 if not applicable
+	 */
+	static void constructMessage(std::vector<unsigned char> & message, unsigned char messageType, unsigned char channel, unsigned char byte1, unsigned char byte2);
 };
