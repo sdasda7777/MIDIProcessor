@@ -11,16 +11,19 @@ LINKERWF =
 SOURCES := $(wildcard src/*.cpp)
 OBJECTS := $(SOURCES:src/%.cpp=obj/%.o)
 
-compile_linux: MIDIProcessor
+.PHONY: compile_linux
+compile_linux: midiprocessor
 
+.PHONY: compile_win
 compile_win: MIDIProcessor.exe
 
-MIDIProcessor: $(OBJECTS)
+midiprocessor: $(OBJECTS)
 	@$(LINKERL) $(OBJECTS) $(LINKERLF) -o $@
 
 $(OBJECTS): obj/%.o : src/%.cpp
 	@$(CXXL) $(CXXLF) -c $< -o $@
 	
+.PHONY: clean
 clean:
 	@rm -f obj/*.o
 	@rm -f MIDIProcessor
