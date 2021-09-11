@@ -132,6 +132,14 @@ Token * TokenFunction::evaluateInstanceSub(TokenEvaluationContext & tec) const{
 												(unsigned char)((TokenNumber*)inputs[1])->getValue(), 
 												(unsigned char)((TokenNumber*)inputs[2])->getValue(),
 												(unsigned char)((TokenNumber*)inputs[3])->getValue()));
+		}else if(m_name == "send"){
+			inputs = StaticMethods::TestAndTransformArguments(tec, m_name, m_arguments, [](size_t s)->bool{return s == 5;}, {TokString, TokNumber, TokNumber, TokNumber, TokNumber});
+			
+			rr = new TokenNumber(tec.send(((TokenString*)inputs[0])->getCleanString(),
+												(unsigned char)((TokenNumber*)inputs[1])->getValue(),
+												(unsigned char)((TokenNumber*)inputs[2])->getValue(),
+												(unsigned char)((TokenNumber*)inputs[3])->getValue(),
+												(unsigned char)((TokenNumber*)inputs[4])->getValue()));
 		}else{
 			throw std::string("Syntax error: function call of unrecognized function ") + m_name + " \nIn '" + ((Token *)tec.getRootNode())->printContent() + "'";
 		}
