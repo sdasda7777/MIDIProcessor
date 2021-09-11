@@ -24,5 +24,5 @@ $(OBJECTS): obj/%.o : src/%.cpp
 	@$(CXXL) $(CXXLF) -c $< -o $@
 	
 clean:
-	@rm -f obj/*
+	@rm -f obj/*.o
 	@rm -f MIDIProcessor
