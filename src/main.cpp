@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
 #include <iostream>
 #include <signal.h>
 
@@ -55,6 +56,8 @@ int main(int argc, char ** argv){
 		try{
 			//Reads parameters
 			for(int i = 1; i < argc; ++i){
+                //std::cout << "Parameter " << i << ": '" << argv[i] << "'" << std::endl;
+
 				if(argc > i+1 && strncmp(argv[i], "-i", std::min(strlen(argv[i]), (size_t)2)) == 0){
 					if(defaultInputPortName != NULL)
 						delete defaultInputPortName;
@@ -63,16 +66,17 @@ int main(int argc, char ** argv){
 					if(defaultOutputPortName != NULL)
 						delete defaultOutputPortName;
 					defaultOutputPortName = new std::string(argv[i+1]);
+				}else if(argc > i+1 && strncmp(argv[i], "-f", std::min(strlen(argv[i]), (size_t)2)) == 0){
+                    //Taken from https://stackoverflow.com/a/116192
+                    std::ifstream in( argv[i+1] );
+                    std::getline( in, script, std::string::traits_type::to_char_type(std::string::traits_type::eof() ) );
 				}
 			}
-			
-			//Reads script from stdin
-			std::cin >> std::noskipws;
-			while(std::cin){
-				std::string tmp;
-				getline(std::cin, tmp);
-				script += tmp + "\n";
-			}
+
+            if(script == ""){
+                std::cout << "No script was specified, or specified script file was empty" << std::endl;
+                goto cleanup;
+            }
 			
 			//Builds executable tree from loaded script
 			std::vector<std::string> almostTokens = StaticMethods::LexicallySplitString(script);
@@ -103,19 +107,13 @@ int main(int argc, char ** argv){
 					//Evaluates tokenTree in current context
 					tokenTree->evaluateBool(tec);
 				}
-				
-				/*int nBytes = message.size();
-				for (int i = 0; i<nBytes; ++i )
-					std::cout << "Byte " << i << " = " << std::hex << (int)message[i] << ", ";
-				if ( nBytes > 0 )
-					std::cout << "stamp = " << std::dec << stamp << std::endl;*/
 			}
 		}catch(std::string excp){
 			std::cout << std::endl << excp << std::endl;
 			std::cout << "In '" << script << "'" << std::endl;
 		}
 	}
-	
+	cleanup:
 	//Cleans up variables
 	midiIn->closePort();
 	delete midiIn;
