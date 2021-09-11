@@ -3,6 +3,10 @@
 #include <iostream>
 #include <signal.h>
 
+#if defined(__WINDOWS_MM__)
+#include <time.h>
+#endif
+
 #include "../../rtmidi/RtMidi.h"
 #include "Tokens_Token.hpp"
 #include "Tokens_TokenNumber.hpp"
