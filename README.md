@@ -9,11 +9,6 @@ Run `make compile_linux` with the clone repo being in the same folder as the rtm
 
 This builds for ALSA by default. You can change this to Jack by replacing `__LINUX_ALSA__` in the makefile for `__UNIX_JACK__` and then changing `-lasound -lpthread` to `-ljack`
 
-### Building for Windows (on Linux)
-Run `make compile_win` with the clone repo being in the same folder as the rtmidi library.
-
-More details to be specified.
-
 ### Building on Windows
 ?????
 
