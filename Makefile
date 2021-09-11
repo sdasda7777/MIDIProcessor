@@ -11,8 +11,6 @@ LINKERWF =
 SOURCES := $(wildcard src/*.cpp)
 OBJECTS := $(SOURCES:src/%.cpp=obj/%.o)
 
-all: compile_linux compile_win
-
 compile_linux: MIDIProcessor
 
 compile_win: MIDIProcessor.exe
