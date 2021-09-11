@@ -41,15 +41,19 @@ int main(int argc, char ** argv){
 		std::cout << std::endl << "Available ports:" << std::endl;
 		if( inPortsCnt == 0 ) {
 			std::cout << "No input ports available!" << std::endl;
+		}else{
+			std::cout << "Input ports:" << std::endl;
 		}
 		for(unsigned int porti = 0; porti < inPortsCnt; ++porti){
-			std::cout << "Input port " << porti << ": '" << midiIn->getPortName(porti) << "'" << std::endl;
+			std::cout << "'" << midiIn->getPortName(porti) << "'" << std::endl;
 		}
 		if( outPortsCnt == 0 ) {
 			std::cout << "No output ports available!" << std::endl;
+		}else{
+			std::cout << "Output ports:" << std::endl;
 		}
 		for(unsigned int porti = 0; porti < outPortsCnt; ++porti){
-			std::cout << "Output port " << porti << ": '" << midiOut->getPortName(porti) << "'" << std::endl;
+			std::cout << "'" << midiOut->getPortName(porti) << "'" << std::endl;
 		}
 	}else{
 		std::string script = "";
