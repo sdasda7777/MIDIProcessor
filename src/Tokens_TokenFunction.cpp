@@ -18,7 +18,7 @@ TokenFunction::~TokenFunction(){
 }
 
 Token * TokenFunction::evaluateNumberSub(TokenEvaluationContext & tec) const{
-	if(m_name == "nStr" || m_name == "strSub")
+	if(m_name == "nStr" || m_name == "strSub" || m_name == "noteNameFromNumber")
 		throw std::string("Syntax error: caller of function ") + m_name + " expected return type number, got string";
 
 	return evaluateInstanceSub(tec);
@@ -26,7 +26,7 @@ Token * TokenFunction::evaluateNumberSub(TokenEvaluationContext & tec) const{
 Token * TokenFunction::evaluateStringSub(TokenEvaluationContext & tec) const{
 	Token * rr;
 	
-	if(m_name == "nStr" || m_name == "strSub"){
+	if(m_name == "nStr" || m_name == "strSub" || m_name == "noteNameFromNumber"){
 		rr = evaluateInstanceSub(tec);
 	}else{
 		Token * tmp = evaluateInstanceSub(tec);

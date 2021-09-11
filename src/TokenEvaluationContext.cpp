@@ -91,10 +91,17 @@ bool TokenEvaluationContext::eraseVariable(std::string name){
 	return false;
 }
 
-bool TokenEvaluationContext::sendToDefault(unsigned char messageType, unsigned char channel, unsigned char byte1, unsigned char byte2) {	
-	//TODO why does this not work?
-	/*if(m_defaultOutputPortName == NULL || !m_midiOut->isPortOpen())
-		return false;*/
+bool TokenEvaluationContext::sendToDefault(unsigned char messageType, unsigned char channel, unsigned char byte1, unsigned char byte2) {			
+	if(messageType < 8)
+		messageType = 8;
+	else if(messageType > 15)
+		messageType = 15;
+	if(channel > 15)
+		channel = 15;
+	if(byte1 > 127)
+		byte1 = 127;
+	if(byte2 > 127 && byte2 != (unsigned char) -1)
+		byte2 = 127;
 	
 	std::vector<unsigned char> message;
 	
