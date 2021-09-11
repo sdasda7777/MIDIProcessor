@@ -36,7 +36,7 @@ Following is the table of operators, operators on top line have highest preceden
 | e==f, e!=f | Equal, Not equal |
 | i&j | Bitwise and |
 | i^j | Bitwise xor |
-| j\|j | Bitwise or |
+| i\|j | Bitwise or |
 | e&&f | Logical and |
 | e\|\|f | Logical or |
 | e=f | Assignment |
