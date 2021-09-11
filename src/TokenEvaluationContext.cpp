@@ -16,7 +16,7 @@ TokenEvaluationContext::TokenEvaluationContext(Token * rootNode, std::map<std::s
 	
 	//Opens specified ports or creates virtual ones (if applicable)
 	if(defaultInputPortName != NULL){
-		for(uint porti = 0; porti < inPortsCnt; ++porti){
+		for(unsigned int porti = 0; porti < inPortsCnt; ++porti){
 			if(midiIn->getPortName(porti) == *defaultInputPortName){
 				midiIn->openPort(porti);
 				midiIn->ignoreTypes(false, false, false);
@@ -35,7 +35,7 @@ TokenEvaluationContext::TokenEvaluationContext(Token * rootNode, std::map<std::s
 	}
 	
 	if(defaultOutputPortName != NULL){
-		for(uint porti = 0; porti < outPortsCnt; ++porti){
+		for(unsigned int porti = 0; porti < outPortsCnt; ++porti){
 			if(midiOut->getPortName(porti) == *defaultOutputPortName){
 				midiOut->openPort(porti);	
 			}
