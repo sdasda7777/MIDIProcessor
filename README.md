@@ -5,8 +5,18 @@ Due to the fact I took lot of code from my school project and I might want to us
 
 ## Building
 ### Building on Linux
-Run `make compile_linux` with the clone repo being in the same folder as the rtmidi library.
-
+Run `make compile_linux` with the clone repo being in the same folder as the rtmidi library. The rtmidi is just an include, you don't (can't?) compile it. The structure should look like this:
+```
+foldername (doesn't matter)/
+ ├─ MIDIProcessor/
+ |   ├─ src/
+ |   ├─ Makefile
+ |   ├─ (other files and folders)
+ ├─ rtmidi/
+     ├─ RtMidi.h
+     ├─ RtMidi.cpp
+     ├─ (other files and folders)
+```
 This builds for ALSA by default. You can change this to Jack by replacing `__LINUX_ALSA__` in the makefile for `__UNIX_JACK__` and then changing `-lasound -lpthread` to `-ljack`
 
 ### Building on Windows
@@ -59,8 +69,8 @@ Following is the table of functions.
 | number print(string s) | Prints string s to console. Returns 1. |
 | number printLn(string s) | Prints string s to console, then prints new line. Returns 1. |
 | number noteNameFromNumber(number n) | Returns name and octave from its number in the MIDI standard. |
-| number sendToDefault(number message_type, number channel, number byte1, number byte2) | Attempts to send specified message to default output port. |
-| number send(string port, number message_type, number channel, number byte1, number byte2) | Attempts to send specified message to specified output port. |
+| number sendToDefault(number message_type, number channel, number byte1, number byte2) | Attempts to send specified message to default output port. Returns 0 if that wasn't possible, 1 otherwise. |
+| number send(string port, number message_type, number channel, number byte1, number byte2) | Attempts to send specified message to specified output port. Returns 0 if that wasn't possible, 1 otherwise. |
 
 ### Control structures
 #### if/else if/else
@@ -71,7 +81,7 @@ For example `if(a == 5){printLn("five");}else if(a == 7){printLn("seven");}else 
 #### while
 This structure allows you to repeat a block of code while some condition is true.
 
-For example `a = 5; while(a > 0){ printLn("a is " # a); a = a - 1;}` will print 5 times line starting with "a is ", followed by current value of a.
+For example `a = 5; while(a > 0){printLn("a is " # a); a = a - 1;}` will print 5 times line starting with "a is ", followed by current value of a.
 
 ### Variables
 You can define your own variables simply by assigning value to them like so: `PI = 3.14159; project_name = "MIDIProcessor";`
