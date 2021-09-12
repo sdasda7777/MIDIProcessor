@@ -10,10 +10,7 @@ class Token;
 */
 class TokenEvaluationContext{
 	Token * m_rootNode; //!< root token of the evaluation
-	std::map<std::string, Token*> * m_variables; //!< variables
-	RtMidiIn * m_midiIn;
-	RtMidiOut * m_midiOut;
-	std::string * m_defaultInputPortName;
+	std::map<std::string, Token*> m_variables; //!< variables
 	std::string * m_defaultOutputPortName;
 	std::map<std::string, RtMidiOut*> m_openOutputPorts;
 	
@@ -22,17 +19,12 @@ public:
 	 * Creates brand new TokenEvaluationContext instance
 	 * @param[in]		rootNode				root of the evaluation
 	 * @param[in,out]	variables				variables
-	 * @param[in,out]	midiIn					RtMidiIn instance
- 	 * @param[in,out]	midiOut					RtMidiOut instance
-	 * @param[in]		defaultInputPortName	name of default input port
  	 * @param[in]		defaultOutputPortName	name of default output port
 	 */
-	TokenEvaluationContext(Token * rootNode, std::map<std::string, Token*> * variables, 
-							RtMidiIn * midiIn, RtMidiOut * midiOut,
-							std::string * defaultInputPortName, std::string * defaultOutputPortName);
+	TokenEvaluationContext(Token * rootNode, std::string * defaultOutputPortName);
 	
 	/**
-	 * Deletes newly created RtMidiOut instances
+	 * Deletes variables and RtMidiOut instances
 	 */
 	~TokenEvaluationContext();
 	

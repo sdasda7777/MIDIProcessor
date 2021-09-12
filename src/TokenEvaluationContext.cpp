@@ -5,63 +5,57 @@
 #include "TokenEvaluationContext.hpp"
 #include "Tokens_Token.hpp"
 
-TokenEvaluationContext::TokenEvaluationContext(Token * rootNode, std::map<std::string, Token*> * variables, 
-							RtMidiIn * midiIn, RtMidiOut * midiOut,
-							std::string * defaultInputPortName, std::string * defaultOutputPortName) : 
-	m_rootNode(rootNode), m_variables(variables), m_midiIn(midiIn), m_midiOut(midiOut),
-	m_defaultInputPortName(defaultInputPortName), m_defaultOutputPortName(defaultOutputPortName){
+TokenEvaluationContext::TokenEvaluationContext(Token * rootNode, std::string * defaultOutputPortName) : 
+	m_rootNode(rootNode), m_defaultOutputPortName(defaultOutputPortName){
 	
-	unsigned int inPortsCnt = midiIn->getPortCount();
-	unsigned int outPortsCnt = midiOut->getPortCount();
+	RtMidiOut * tmpOut = new RtMidiOut();
+	unsigned int outPortsCnt = tmpOut->getPortCount();
 	
-	//Opens specified ports or creates virtual ones (if applicable)
-	if(defaultInputPortName != NULL){
-		for(unsigned int porti = 0; porti < inPortsCnt; ++porti){
-			if(midiIn->getPortName(porti) == *defaultInputPortName){
-				midiIn->openPort(porti);
-				midiIn->ignoreTypes(false, false, false);
-			}
-		}
-		if(!midiIn->isPortOpen()){
-			#if defined( __LINUX_ALSA__ ) or defined( __UNIX_JACK__ )
-				midiIn->openVirtualPort(*defaultInputPortName);
-				std::cout << "Input port '" << *defaultInputPortName << "' was created" << std::endl;
-			#else
-				std::cout << "Input port '" << *defaultInputPortName << "' not found" << std::endl;
-			#endif
-		}
-	}else{
-		std::cout << "No input port specified" << std::endl;
-	}
-	
+	//Opens specified port or creates virtual one (if applicable)	
 	if(defaultOutputPortName != NULL){
+		bool exists = false;
+		unsigned int portNumber = 0;
 		for(unsigned int porti = 0; porti < outPortsCnt; ++porti){
-			if(midiOut->getPortName(porti) == *defaultOutputPortName){
-				midiOut->openPort(porti);	
+			if(tmpOut->getPortName(porti) == *defaultOutputPortName){
+				exists = true;
+				portNumber = porti;
+				break;
 			}
 		}
-		if(!midiOut->isPortOpen()){
+		
+		if(!exists){
 			#if defined( __LINUX_ALSA__ ) or defined( __UNIX_JACK__ )
-				midiOut->openVirtualPort(*defaultOutputPortName);
+				RtMidiOut * tmp = new RtMidiOut();
+				tmp->openVirtualPort(*defaultOutputPortName);
+				m_openOutputPorts[*defaultOutputPortName] = tmp;
 				std::cout << "Output port '" << *defaultOutputPortName << "' was created" << std::endl;
 			#else
 				std::cout << "Output port '" << *defaultOutputPortName << "' not found" << std::endl;
 			#endif
-		}
-		if(midiOut->isPortOpen()){
-			m_openOutputPorts[*defaultOutputPortName] = midiOut;
+		}else{
+			RtMidiOut * tmp = new RtMidiOut();
+			tmp->openPort(portNumber);
+			m_openOutputPorts[*defaultOutputPortName] = tmp;
+			std::cout << "Output port '" << *defaultOutputPortName << "' was opened" << std::endl;
 		}
 	}else{
 		std::cout << "No output port specified" << std::endl;
 	}
+	
+	delete tmpOut;
 }
 
 TokenEvaluationContext::~TokenEvaluationContext(){
-	for(std::map<std::string, RtMidiOut*>::iterator it = m_openOutputPorts.begin(); it != m_openOutputPorts.begin(); ++it){
-		if((*it).first != *m_defaultOutputPortName){
-			delete (*it).second;
-		}
+	for(std::map<std::string, RtMidiOut*>::iterator it = m_openOutputPorts.begin(); it != m_openOutputPorts.end(); ++it){
+		it->second->closePort();
+		delete it->second;
 	}
+	m_openOutputPorts.clear();
+	
+	for(std::map<std::string, Token*>::iterator it = m_variables.begin(); it != m_variables.end(); ++it){
+		delete it->second;
+	}
+	m_variables.clear();
 }
 
 Token * TokenEvaluationContext::getRootNode(){
@@ -77,37 +71,44 @@ void TokenEvaluationContext::printLn(std::string text) const {
 }
 
 Token * TokenEvaluationContext::getVariable(std::string name){	
-	std::map<std::string, Token*>::iterator varit = m_variables->find(name);
-	if(varit != m_variables->end()){
-		return (*varit).second;
+	std::map<std::string, Token*>::iterator varit = m_variables.find(name);
+	if(varit != m_variables.end()){
+		return varit->second;
 	}
 	return nullptr;
 }
 
 void TokenEvaluationContext::setVariable(std::string name, Token * newval){
-	std::map<std::string, Token*>::iterator varit = m_variables->find(name);
-	if(varit != m_variables->end()){
-		delete (*varit).second;
+	std::map<std::string, Token*>::iterator varit = m_variables.find(name);
+	if(varit != m_variables.end()){
+		delete varit->second;
 	}
-	(*m_variables)[name] = newval;
+	m_variables[name] = newval;
 }
 
 bool TokenEvaluationContext::eraseVariable(std::string name){
-	std::map<std::string, Token*>::iterator varit = m_variables->find(name);
-	if(varit != m_variables->end()){
-		delete (*varit).second;
-		m_variables->erase(varit);
+	std::map<std::string, Token*>::iterator varit = m_variables.find(name);
+	if(varit != m_variables.end()){
+		delete varit->second;
+		m_variables.erase(varit);
 		return true;
 	}
 	return false;
 }
 
 bool TokenEvaluationContext::sendToDefault(unsigned char messageType, unsigned char channel, unsigned char byte1, unsigned char byte2){
-	std::vector<unsigned char> message;
-	constructMessage(message, messageType, channel, byte1, byte2);
-	m_midiOut->sendMessage(&message);
-	
-	return true;
+	if(m_defaultOutputPortName != NULL){
+		std::map<std::string, RtMidiOut*>::iterator it = m_openOutputPorts.find(*m_defaultOutputPortName);
+		
+		if(it != m_openOutputPorts.end()){
+			std::vector<unsigned char> message;
+			constructMessage(message, messageType, channel, byte1, byte2);
+			it->second->sendMessage(&message);
+			
+			return true;
+		}
+	}
+	return false;
 }
 
 bool TokenEvaluationContext::send(const std::string & portName, unsigned char messageType, unsigned char channel, unsigned char byte1, unsigned char byte2){
@@ -115,27 +116,29 @@ bool TokenEvaluationContext::send(const std::string & portName, unsigned char me
 	
 	//If not open yet, tries to open new existin port
 	if(it == m_openOutputPorts.end()){
-		unsigned int outPortsCnt = m_midiOut->getPortCount();
+		RtMidiOut * tmp = new RtMidiOut();
+		unsigned int outPortsCnt = tmp->getPortCount();
 		for(unsigned int porti = 0; porti < outPortsCnt; ++porti){
-			if(m_midiOut->getPortName(porti) == portName){
+			if(tmp->getPortName(porti) == portName){
 				RtMidiOut * tmprt = new RtMidiOut();
 				tmprt->openPort(porti);
 				m_openOutputPorts[portName] = tmprt;
 				break;
 			}
 		}
+		delete tmp;
 		it = m_openOutputPorts.find(portName);
 	}
 	
 	//If not open yet, either returns false or opens virtual
 	if(it == m_openOutputPorts.end()){
-		#ifdef __WINDOWS_MM__
-			return false;
-		#else
+		#if defined( __LINUX_ALSA__ ) or defined( __UNIX_JACK__ )
 			RtMidiOut * tmprt = new RtMidiOut();
 			tmprt->openVirtualPort(portName);
 			m_openOutputPorts[portName] = tmprt;
 			it = m_openOutputPorts.find(portName);
+		#else
+			return false;
 		#endif	
 	}
 	
