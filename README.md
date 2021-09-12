@@ -11,11 +11,11 @@ foldername (doesn't matter)/
  ├─ MIDIProcessor/
  |   ├─ src/
  |   ├─ Makefile
- |   ├─ (other files and folders)
- ├─ rtmidi/
+ |   └─ (other files and folders)
+ └─ rtmidi/
      ├─ RtMidi.h
      ├─ RtMidi.cpp
-     ├─ (other files and folders)
+     └─ (other files and folders)
 ```
 
 ### Building on Linux
