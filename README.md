@@ -22,6 +22,9 @@ This builds for ALSA by default. You can change this to Jack by replacing `__LIN
 ### Building on Windows
 ?????
 
+## Usage
+The MIDIProcessor is run like this: `./midiprocessor -i 'Default Input Port Name' -o 'Default Output Port Name' -f 'relative/path/to/script/file.midiproc'`. You can find script files in the examples/ folder. Reading through those should give you an idea of how to work with MIDIProcessor.
+
 ## Programming
 This section explains programming of the scripts. The formatting is terrible to keep it brief, but you can insert newlines and spaces as you desire, they get ignored by the processor.
 
@@ -56,7 +59,7 @@ Following is the table of operators, operators on top line have highest preceden
 ### Functions
 Following is the table of functions.
 
-| Name and parameters | Usage |
+| Name and parameters | Description |
 |---|---|
 | string nStr(number n, number decimalPlaces) | Returns number n as string with decimal places as specified by second parameter. |
 | number sNum(string s, variable v) | Attempts to parse number from string s and place it to variable v. Returns 0 if that is not possible. |
@@ -69,8 +72,8 @@ Following is the table of functions.
 | number print(string s) | Prints string s to console. Returns 1. |
 | number printLn(string s) | Prints string s to console, then prints new line. Returns 1. |
 | number noteNameFromNumber(number n) | Returns name and octave from its number in the MIDI standard. |
-| number sendToDefault(number message_type, number channel, number byte1, number byte2) | Attempts to send specified message to default output port. Returns 0 if that wasn't possible, 1 otherwise. |
-| number send(string port, number message_type, number channel, number byte1, number byte2) | Attempts to send specified message to specified output port. Returns 0 if that wasn't possible, 1 otherwise. |
+| number sendToDefault(number message_type, number channel, number byte1, number byte2) | Attempts to send specified MIDI message to default output port. Returns 0 if that wasn't possible, 1 otherwise. |
+| number send(string port, number message_type, number channel, number byte1, number byte2) | Attempts to send specified MIDI message to specified output port. Returns 0 if that wasn't possible, 1 otherwise. |
 
 ### Control structures
 #### if/else if/else
@@ -86,7 +89,7 @@ For example `a = 5; while(a > 0){printLn("a is " # a); a = a - 1;}` will print 5
 ### Variables
 You can define your own variables simply by assigning value to them like so: `PI = 3.14159; project_name = "MIDIProcessor";`
 
-Remember that the complete script file is executed once for every received message, so if you want to define initial value, use `if(!isSet(variable)){variable = 5;}`
+Remember that the complete script file is executed once for every received MIDI message, so if you want to define initial value, use `if(!isSet(variable)){variable = 5;}`
 
 Following is list of variables that get filled by processor before every execution of the script
 
