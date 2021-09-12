@@ -5,7 +5,7 @@ Due to the fact I took lot of code from my school project and I might want to us
 
 ## Building
 ### Building on Linux
-Run `make compile_linux` with the clone repo being in the same folder as the rtmidi library. The rtmidi is just an include, you don't (can't?) compile it. The structure should look like this:
+Run `make compile_linux` with the cloned repo being in the same folder as the rtmidi library. The rtmidi is just an include, you don't (can't?) compile it. The structure should look like this:
 ```
 foldername (doesn't matter)/
  ├─ MIDIProcessor/
