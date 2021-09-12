@@ -102,6 +102,7 @@ Following is list of variables that get filled by processor before every executi
 | Name | Meaning |
 |---|---|
 | DELTA | Amount of time that passed since last message |
+| SOURCE_PORT | Name of the port that sent current MIDI message |
 | MESSAGE_TYPE | Type of the MIDI message |
 | CHANNEL | Channel the MIDI message got send on |
 | BYTE_1 | First data byte of the MIDI message |
