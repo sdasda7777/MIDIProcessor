@@ -1,5 +1,5 @@
 # MIDIProcessor
-Processes live MIDI input based on passed script. Library used for interaction with MIDI is rtmidi.
+Processes live MIDI input based on passed script, allowing for filtering, editing, re-routing, duplicating and splitting messages. Library used for interaction with MIDI is rtmidi.
 
 Due to the fact I took lot of code from my school project and I might want to use it again in other school projects, please consider filing issue before making forks or pull requests. I am very open to implementing new stuff if I find your use case reasonable.
 
@@ -31,7 +31,7 @@ The MIDIProcessor is run like this: `./midiprocessor -i 'Default Input Port Name
 This section explains programming of the scripts. The formatting is terrible to keep it brief, but you can insert newlines and spaces as you desire, they get ignored by the processor.
 
 ### Operators
-Operators are fairly standard for C-like language. Only notable differences from C++ are that there is only one assignment operator (no +=, -=, *=, etc.), and symbol used for concatenation is #, not +.
+Operators are fairly standard for C-like language. Only notable differences from C++ are that there is only one assignment operator (no +=, -=, *=, etc.), you can use ** to denote power, and symbol used for concatenation is #, not +.
 
 Following is the table of operators, operators on top line have highest precedence. Letters i and j represent numbers, letters e and f represent either number or string.
 
