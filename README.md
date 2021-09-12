@@ -4,26 +4,10 @@ Processes live MIDI input based on passed script, allowing for filtering, editin
 Due to the fact I took lot of code from my school project and I might want to use it again in other school projects, please consider filing issue before making forks or pull requests. I am very open to implementing new stuff if I find your use case reasonable.
 
 ## Building
-Place [rtmidi library](https://github.com/thestk/rtmidi) into the same folder as your cloned repo. The rtmidi is just an include, you don't (can't?) compile it. The structure should look something like this:
-
-```
-foldername (doesn't matter)/
- ├─ MIDIProcessor/
- |   ├─ examples/
- |   ├─ obj/
- |   ├─ src/
- |   ├─ Makefile
- |   └─ (other files and folders)
- └─ rtmidi/
-     ├─ doc/
-     ├─ tests/     
-     ├─ RtMidi.h
-     ├─ RtMidi.cpp
-     └─ (other files and folders)
-```
+Download [rtmidi repository](https://github.com/thestk/rtmidi). And add the option `'RTMIDIDIR=<path to rtmidi>'` to your make command, or place it at `../rtmidi`, the default location that MIDIProcessor checks. You don't need to build it yourself, since only a small portion of the library is used it is built automatically.
 
 ### Building on Linux
-Run `make compile_linux` in the cloned repo. This builds for ALSA by default. You can change this to Jack by replacing `__LINUX_ALSA__` in the Makefile for `__UNIX_JACK__` and then changing `-lasound -lpthread` to `-ljack`.
+Run `make compile_linux` in the cloned repo. This builds for ALSA by default. You can change this to Jack by adding the option `BACKEND=jack`.
 
 ### Building on Windows
 I used TDM-GCC and Code::Blocks and was able to build it (rtmidi expects preprocessor define `__WINDOWS_MM__`), but it didn't work very well. This is one of the parts of the project where I would welcome help very much, because I don't know a lot about development for Windows and there's probably something obvious I missed.
