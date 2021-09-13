@@ -49,4 +49,4 @@ $(OBJECTS): obj/%.o : src/%.cpp
 .PHONY: clean
 clean:
 	@rm -f obj/*.o
-	@rm -f MIDIProcessor
+	@rm -f midiprocessor
