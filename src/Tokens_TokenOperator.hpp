@@ -45,11 +45,18 @@ public:
 	Token * evaluateStringSub(TokenEvaluationContext & tec) const override;
 	
 	/**
-	 * Returns result of the operation as a variable name
+	 * Returns result of the operation as an array
 	 * @param[in,out]	tec	evaluation context
  	 * @returns				result
 	 */
-	Token * evaluateVarnameSub(TokenEvaluationContext & tec) const override;
+	Token * evaluateArraySub(TokenEvaluationContext & tec);
+	
+	/**
+	 * Returns result of the operation as a reference if applicable
+	 * @param[in,out]	tec	evaluation context
+ 	 * @returns				result
+	 */
+	TokenWrapper * evaluateReferenceSub(TokenEvaluationContext & tec) const override;
 	
 	/**
 	 * Returns result of the operation, type independent
@@ -64,6 +71,14 @@ public:
  	 * @returns				true or false
 	 */
 	bool evaluateBoolSub(TokenEvaluationContext & tec) const override;
+	
+	/**
+	 * Throws exception
+	 * @param[in]		index	index
+	 * @param[in,out]	tec		evaluation context
+ 	 * @returns					result
+	 */
+	TokenWrapper * getReferenceAtIndexSub(Token * index, TokenEvaluationContext & tec) const override;
 	
 	/**
 	 * Returns string with representation of operands and representation of operator

@@ -68,7 +68,7 @@ public:
 	 * @param[in]		expectedParamTypes		expected parameter types
 	 * @returns									evaluated arguments
 	 */
-	static std::vector<Token*> TestAndTransformArguments(TokenEvaluationContext & tec, const std::string & name, const std::vector<Token*> & tokens, const std::function <bool(size_t)>& paramCountComparator, std::vector<Token_Type> expectedParamTypes);
+	static std::vector<std::pair<bool, void*>> TestAndTransformArguments(TokenEvaluationContext & tec, const std::string & name, const std::vector<Token*> & tokens, const std::function <bool(size_t)>& paramCountComparator, std::vector<Token_Type> expectedParamTypes);
 	
 	/**
 	 * Uses shunting-yard algorithm to build tree of tokens

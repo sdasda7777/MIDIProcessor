@@ -12,12 +12,13 @@
 #include "Tokens_Token.hpp"
 #include "Tokens_TokenNumber.hpp"
 #include "Tokens_TokenString.hpp"
+#include "Tokens_TokenArray.hpp"
 #include "TokenEvaluationContext.hpp"
+#include "TokenWrapper.hpp"
 
-Token * tokenTree = NULL;
-TokenEvaluationContext * tec = NULL;
+Token * tokenTree = nullptr;
+TokenEvaluationContext * tec = nullptr;
 std::map<std::string, RtMidiIn *> inputPorts;
-std::string * defaultOutputPortName = NULL;
 
 bool done;
 static void finish(int ignore){ done = true; }
@@ -29,7 +30,7 @@ int main(int argc, char ** argv){
 		RtMidiOut * midiOut = new RtMidiOut();
 	
 		//Prints usage
-		std::cout << "Usage: " << argv[0] << " -i 'Input Port Name' -o 'Output Port Name' -f scriptName.midiproc" << std::endl;
+		std::cout << "Usage: " << argv[0] << " -i 'Input Port Name' -o 'Output Port Name' -f 'scriptName.midiproc'" << std::endl;
 		#if defined( __LINUX_ALSA__ ) or defined( __UNIX_JACK__ )
 			std::cout << "(Nonexistent ports will be created)" << std::endl;
 		#endif
@@ -61,8 +62,10 @@ int main(int argc, char ** argv){
 		delete midiOut;
 	}else{
 		srand (time(NULL));
-	
+		
 		std::string script = "";
+		std::vector<std::string> inputDevices;
+		std::vector<std::string> outputDevices;
 		try{
 			{
 				//Creates temporary instance used for creation of other input instances
@@ -77,6 +80,7 @@ int main(int argc, char ** argv){
 						lastFlag = i;
 					}else if(lastFlag != -1 && argv[lastFlag][1] == 'i'){
 						std::string portName(argv[i]);
+						inputDevices.push_back(portName);
 						std::map<std::string, RtMidiIn *>::iterator it = inputPorts.find(portName);
 						
 						if(it == inputPorts.end()){
@@ -108,9 +112,8 @@ int main(int argc, char ** argv){
 							}
 						}
 					}else if(lastFlag != -1 && argv[lastFlag][1] == 'o'){
-						if(defaultOutputPortName != NULL)
-							delete defaultOutputPortName;
-						defaultOutputPortName = new std::string(argv[i]);
+						std::string portName(argv[i]);
+						outputDevices.push_back(portName);
 					}else if(lastFlag != -1 && argv[lastFlag][1] == 'f'){
 		                //Taken from https://stackoverflow.com/a/116192
 		                std::ifstream in( argv[i] );
@@ -119,43 +122,54 @@ int main(int argc, char ** argv){
 				}
 				
 				delete midiIn;
-				
-		        if(script == ""){
-		            std::cout << "No script was specified, or specified script file was empty" << std::endl;
-		            goto cleanup;
-		        }
             }
 			
-			//Builds executable tree from loaded script
-			std::vector<std::string> almostTokens = StaticMethods::LexicallySplitString(script);
-			tokenTree = StaticMethods::BuildATokenTree(almostTokens);
-			
-			//std::cout << std::endl << "'" << tokenTree->printContent() << "'" << std::endl << std::endl;
-			
-			//Creates evaluation context
-			tec = new TokenEvaluationContext(tokenTree, defaultOutputPortName);
-			
-			//Installs an interrupt handler function.
-			done = false;
-			(void) signal(SIGINT, finish);
-			std::cout << "Processing in progress, quit with ctrl+c" << std::endl;
-			
-			std::vector<unsigned char> message;
-			while( !done ) {
-				for(std::map<std::string, RtMidiIn*>::iterator it = inputPorts.begin(); it != inputPorts.end(); ++it){					
-					double stamp = it->second->getMessage( &message );
+			if(script == ""){
+	            std::cout << "No script was specified, or specified script file was empty" << std::endl;
+	        }else{
+				//Builds executable tree from loaded script
+				std::vector<std::string> almostTokens = StaticMethods::LexicallySplitString(script);
+				tokenTree = StaticMethods::BuildATokenTree(almostTokens);
 				
-					if(message.size() > 1){
-						//Stores message into variables
-						tec->setVariable("DELTA", new TokenNumber(stamp));
-						tec->setVariable("SOURCE_PORT", new TokenString(it->first, true));
-						tec->setVariable("MESSAGE_TYPE", new TokenNumber((message[0] >> 4) & 15));
-						tec->setVariable("CHANNEL", new TokenNumber(message[0] & 15));
-						tec->setVariable("BYTE_1", new TokenNumber(message[1]));
-						tec->setVariable("BYTE_2", new TokenNumber((message.size() > 2 ? message[2] : -1)));
-						
-						//Evaluates tokenTree in current context
-						tokenTree->evaluateBool(*tec);
+				//Prints content of generated tree (testing only)
+				//std::cout << std::endl << "'" << tokenTree->printContent() << "'" << std::endl << std::endl;
+				
+				//Creates evaluation context, pushes input and  output port names as read-only variables
+				tec = new TokenEvaluationContext(tokenTree, outputDevices);
+				std::vector<Token *> inputPortNames;
+				for(size_t i = 0; i < inputDevices.size(); ++i){
+					inputPortNames.push_back(new TokenString(inputDevices[i], true));
+				}
+				tec->setVariable("INPUT_PORTS", new TokenArray(inputPortNames), true);
+				std::vector<Token *> outputPortNames;
+				for(size_t i = 0; i < outputDevices.size(); ++i){
+					outputPortNames.push_back(new TokenString(outputDevices[i], true));
+				}
+				tec->setVariable("OUTPUT_PORTS", new TokenArray(outputPortNames), true);
+				
+				//Installs an interrupt handler function.
+				done = false;
+				(void) signal(SIGINT, finish);
+				std::cout << "Processing in progress, quit with ctrl+c" << std::endl;
+				
+				
+				std::vector<unsigned char> message;
+				while( !done ) {
+					for(std::map<std::string, RtMidiIn*>::iterator it = inputPorts.begin(); it != inputPorts.end(); ++it){					
+						double stamp = it->second->getMessage( &message );
+					
+						if(message.size() > 1){
+							//Stores message into variables
+							tec->setVariable("DELTA", new TokenNumber(stamp));
+							tec->setVariable("INPUT_PORT", new TokenString(it->first, true));
+							tec->setVariable("MESSAGE_TYPE", new TokenNumber((message[0] >> 4) & 15));
+							tec->setVariable("CHANNEL", new TokenNumber(message[0] & 15));
+							tec->setVariable("BYTE_1", new TokenNumber(message[1]));
+							tec->setVariable("BYTE_2", new TokenNumber((message.size() > 2 ? message[2] : -1)));
+							
+							//Evaluates tokenTree in current context
+							tokenTree->evaluateBool(*tec);
+						}
 					}
 				}
 			}
@@ -165,27 +179,21 @@ int main(int argc, char ** argv){
 		}
 	}
 	
-	//Cleans up variables
-	cleanup:
-	
-	if(tokenTree != NULL){
+	//Cleans up variables	
+	if(tokenTree != nullptr){
 		delete tokenTree;
-		tokenTree = NULL;
+		tokenTree = nullptr;
 	}
-	if(tec != NULL){
+	if(tec != nullptr){
 		delete tec;
-		tec = NULL;
+		tec = nullptr;
 	}
 	
 	for(std::map<std::string, RtMidiIn*>::iterator it = inputPorts.begin(); it != inputPorts.end(); ++it){
 		delete it->second;
+		it->second = nullptr;
 	}
 	inputPorts.clear();
-	
-	if(defaultOutputPortName != NULL){
-		delete defaultOutputPortName;
-		defaultOutputPortName = NULL;
-	}
 	
 	return 0;
 }

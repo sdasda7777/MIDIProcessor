@@ -3,25 +3,25 @@
 class RtMidiIn;
 class RtMidiOut;
 class Token;
+class TokenWrapper;
 
 //! Context for evaluating tokens
 /*!
-	Provides information about level of recursion, root token and reference to the core.
+	Holds variables and handles all output.
 */
 class TokenEvaluationContext{
 	Token * m_rootNode; //!< root token of the evaluation
-	std::map<std::string, Token*> m_variables; //!< variables
-	std::string * m_defaultOutputPortName;
+	std::map<std::string, std::pair<bool, TokenWrapper*>> m_variables; //!< variables
+	std::vector<std::string> m_paramOutputPortNames;
 	std::map<std::string, RtMidiOut*> m_openOutputPorts;
 	
 public:
 	/**
 	 * Creates brand new TokenEvaluationContext instance
 	 * @param[in]		rootNode				root of the evaluation
-	 * @param[in,out]	variables				variables
- 	 * @param[in]		defaultOutputPortName	name of default output port
+ 	 * @param[in]		paramOutputPortNames	names of output ports
 	 */
-	TokenEvaluationContext(Token * rootNode, std::string * defaultOutputPortName);
+	TokenEvaluationContext(Token * rootNode, std::vector<std::string> paramOutputPortNames);
 	
 	/**
 	 * Deletes variables and RtMidiOut instances
@@ -52,14 +52,15 @@ public:
 	 * @param[in]	name	variable name
 	 * @returns				pointer to variable value or nullptr
 	 */
-	Token * getVariable(std::string name);
+	TokenWrapper * getVariable(std::string name);
 	
 	/**
 	 * Sets a variable, deletes old if one existed
-	 * @param[in]	name	variable name
-	 * @param[in]	newval	value to be saved
+	 * @param[in]	name		variable name
+	 * @param[in]	newval		value to be saved
+	 * @param[in]	readOnly	whether variable should be read only (const, unmutable)
 	 */
-	void setVariable(std::string name, Token * newval);
+	void setVariable(std::string name, Token * newval, bool readOnly = false);
 	
 	/**
 	 * Attempts to erase a variable
@@ -67,6 +68,7 @@ public:
 	 * @returns				true if one existed, false otherwise
 	 */
 	bool eraseVariable(std::string name);
+	
 	
 	/**
 	 * Attempts to send message to default out port

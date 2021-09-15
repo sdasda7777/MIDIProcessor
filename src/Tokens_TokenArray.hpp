@@ -2,26 +2,22 @@
 
 #include "Tokens_Token.hpp"
 
-//! Represents condition.
-class TokenIf : public Token{
-	Token * m_condition; //!< Pointer to condition of the if
-	Token * m_if; //!< Pointer to expression to be evaluated if true
-	Token * m_else; //!< Pointer to expression to be evaluated otherwise
+//! Represents array.
+class TokenArray : public Token{
+	std::vector<TokenWrapper *> m_elements; //!< Pointers to elements of the array
 	
 public:
 
 	/**
-	 * Creates instance of an if token
- 	 * @param[in]	condition	pointer to condition
- 	 * @param[in]	ifcode		pointer to if block
-  	 * @param[in]	elsecode	pointer to else block
+	 * Creates instance of an array token
+ 	 * @param[in]	elements	pointers to elements
 	 */
-	explicit TokenIf(Token * condition, Token * ifcode, Token * elsecode);
+	explicit TokenArray(std::vector<Token *> elements);
 	
 	/**
-	 * Destructor - frees child tokens
+	 * Destructor - deletes child tokens
 	 */
-	~TokenIf();
+	~TokenArray();
 	
 	/**
 	 * Throws exception
@@ -38,7 +34,7 @@ public:
 	Token * evaluateStringSub(TokenEvaluationContext & tec) const override;
 	
 	/**
-	 * Throws exception
+	 * Returns deep copy
 	 * @param[in,out]	tec	evaluation context
  	 * @returns				result
 	 */
@@ -52,7 +48,7 @@ public:
 	TokenWrapper * evaluateReferenceSub(TokenEvaluationContext & tec) const override;
 	
 	/**
-	 * Throws exception
+	 * Returns value, same as evaluateArraySub
 	 * @param[in,out]	tec	evaluation context
  	 * @returns				result
 	 */
@@ -66,7 +62,7 @@ public:
 	bool evaluateBoolSub(TokenEvaluationContext & tec) const override;
 	
 	/**
-	 * Throws exception
+	 * Returns reference to elememt with matching index, or throws exception
 	 * @param[in]		index	index
 	 * @param[in,out]	tec		evaluation context
  	 * @returns					result
@@ -84,4 +80,10 @@ public:
  	 * @returns	printable string
 	 */
 	std::string toStringSub() const override;
+	
+	/**
+	 * Returns into which category operator belongs
+ 	 * @returns	operator rank
+	 */
+	Operator_Rank getRank() const;
 };

@@ -2,7 +2,6 @@
 
 #include "Tokens_Token.hpp"
 
-
 //! Represents string token.
 class TokenString : public Token{
 	std::string m_value; //!< String value (clean)
@@ -15,25 +14,32 @@ public:
 	explicit TokenString(std::string v, bool already_clean = false);
 	
 	/**
-	 * Returns result of the operation as a number
+	 * Throws exception
 	 * @param[in,out]	tec	evaluation context
  	 * @returns				result
 	 */
 	Token * evaluateNumberSub(TokenEvaluationContext & tec) const override;
 	
 	/**
-	 * Returns result of the operation as a string
+	 * Returns held value
 	 * @param[in,out]	tec	evaluation context
  	 * @returns				result
 	 */
 	Token * evaluateStringSub(TokenEvaluationContext & tec) const override;
 	
 	/**
-	 * Returns result of the operation as a variable name
+	 * Throws exception
 	 * @param[in,out]	tec	evaluation context
  	 * @returns				result
 	 */
-	Token * evaluateVarnameSub(TokenEvaluationContext & tec) const override;
+	Token * evaluateArraySub(TokenEvaluationContext & tec);
+	
+	/**
+	 * Throws exception
+	 * @param[in,out]	tec	evaluation context
+ 	 * @returns				result
+	 */
+	TokenWrapper * evaluateReferenceSub(TokenEvaluationContext & tec) const override;
 	
 	/**
 	 * Returns value, same as evaluateStringSub
@@ -48,6 +54,14 @@ public:
  	 * @returns				true or false
 	 */
 	bool evaluateBoolSub(TokenEvaluationContext & tec) const override;
+	
+	/**
+	 * Throws exception
+	 * @param[in]		index	index
+	 * @param[in,out]	tec		evaluation context
+ 	 * @returns					result
+	 */
+	TokenWrapper * getReferenceAtIndexSub(Token * index, TokenEvaluationContext & tec) const override;
 	
 	/**
 	 * Returns string

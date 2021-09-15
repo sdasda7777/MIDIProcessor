@@ -1,4 +1,4 @@
-print("'" # SOURCE_PORT # "': ");
+print("'" # INPUT_PORT # "': ");
 if(MESSAGE_TYPE == 8){
 	printLn(noteNameFromNumber(BYTE_1) # " (" # BYTE_1 # ") off with speed " # BYTE_2 # " on channel " # CHANNEL);
 }else if(MESSAGE_TYPE == 9){

@@ -28,11 +28,18 @@ public:
 	Token * evaluateStringSub(TokenEvaluationContext & tec) const override;
 	
 	/**
-	 * Returns value of referenced token as a variable name
+	 * Returns value of referenced token as an array
 	 * @param[in,out]	tec	evaluation context
  	 * @returns				result
 	 */
-	Token * evaluateVarnameSub(TokenEvaluationContext & tec) const override;
+	Token * evaluateArraySub(TokenEvaluationContext & tec);
+	
+	/**
+	 * Returns reference
+	 * @param[in,out]	tec	evaluation context
+ 	 * @returns				result
+	 */
+	TokenWrapper * evaluateReferenceSub(TokenEvaluationContext & tec) const override;
 	
 	/**
 	 * Returns value of referenced token, type independent
@@ -47,6 +54,14 @@ public:
  	 * @returns				true or false
 	 */
 	bool evaluateBoolSub(TokenEvaluationContext & tec) const override;
+	
+	/**
+	 * Throws exception
+	 * @param[in]		index	index
+	 * @param[in,out]	tec		evaluation context
+ 	 * @returns					result
+	 */
+	TokenWrapper * getReferenceAtIndexSub(Token * index, TokenEvaluationContext & tec) const override;
 	
 	/**
 	 * Returns variable name

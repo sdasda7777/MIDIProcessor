@@ -6,6 +6,7 @@
 #include "TokenEvaluationContext.hpp"
 
 class TokenEvaluationContext;
+class TokenWrapper;
 
 enum Token_Type : unsigned int
 {
@@ -18,8 +19,8 @@ enum Token_Type : unsigned int
 	TokFunction = 16,
 
 	TokNumber = 32,
-	TokString = 64/*,
-	TokArray = 128,
+	TokString = 64,
+	TokArray = 128/*,
 	TokObject = 256*/
 }; //!< used purely for specifying expected parameter types
 
@@ -72,23 +73,42 @@ public:
 	virtual Token * evaluateStringSub(TokenEvaluationContext & tec) const = 0;
 	
 	/**
-	 * Attempts to resolve tree evaluation to get a variable name
+	 * Attempts to resolve tree evaluation to get an array
 	 * @param[in,out]	tec	evaluation context
-	 * @returns				TokenString
+	 * @returns				TokenArray
 	 */
-	Token * evaluateVarname(TokenEvaluationContext & tec) const {
-		return this->evaluateVarnameSub(tec);
+	Token * evaluateArray(TokenEvaluationContext & tec){
+		return this->evaluateArraySub(tec);
 	}
 	
 	/**
 	 * Declares that every instantiable derived class shall have a method that either:
-	 *	a) returns its name (for TokenVariable instances)
-	 *	b) returns name of root variable (for operators --d and ++d)
-	 *	c) throws an exception (if function parameters are not correct or operators are used incorrectly)
+	 *	a) returns its value (for TokenArray instances)
+	 *	b) returns value it references (for TokenVariable instances that reference an array)
+	 *	c) returns its result (for operators and functions that return an array)
+	 *	d) throws an exception (other cases)
 	 * @param[in,out]	tec	evaluation context
  	 * @returns	result
 	 */
-	virtual Token * evaluateVarnameSub(TokenEvaluationContext & tec) const = 0;
+	virtual Token * evaluateArraySub(TokenEvaluationContext & tec) = 0;
+	
+	/**
+	 * Attempts to resolve tree evaluation to get a reference
+	 * @param[in,out]	tec	evaluation context
+	 * @returns				TokenString
+	 */
+	TokenWrapper * evaluateReference(TokenEvaluationContext & tec) const {
+		return this->evaluateReferenceSub(tec);
+	}
+	
+	/**
+	 * Declares that every instantiable derived class shall have a method that either:
+	 *	a) returns reference to a token (for TokenVariable instances and operators --d and ++d)
+	 *	b) throws an exception (other cases)
+	 * @param[in,out]	tec	evaluation context
+ 	 * @returns	result
+	 */
+	virtual TokenWrapper * evaluateReferenceSub(TokenEvaluationContext & tec) const = 0;
 	
 	/**
 	 * Attempts to resolve tree evaluation to get a value to assign
@@ -130,6 +150,26 @@ public:
  	 * @returns	result
 	 */
 	virtual bool evaluateBoolSub(TokenEvaluationContext & tec) const = 0;
+	
+	/**
+	 * Attempts to use index to get a reference to child note
+	 * @param[in]		index	index
+	 * @param[in,out]	tec		evaluation context
+	 * @returns					TokenWrapper
+	 */
+	TokenWrapper * getReferenceAtIndex(Token * index, TokenEvaluationContext & tec) const {
+		return this->getReferenceAtIndexSub(index, tec);
+	}
+	
+	/**
+	 * Declares that every instantiable derived class shall have a method that either:
+	 *	a) returns reference to matching Token with matching index
+	 *	b) throws an exception (other cases)
+	 * @param[in]		index	evaluation context
+	 * @param[in,out]	tec		evaluation context
+	 * @returns					TokenWrapper
+	 */
+	virtual TokenWrapper * getReferenceAtIndexSub(Token * index, TokenEvaluationContext & tec) const = 0;
 	
 	/**
 	 * Returns string approximating original code

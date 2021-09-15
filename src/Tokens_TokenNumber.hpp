@@ -2,7 +2,6 @@
 
 #include "Tokens_Token.hpp"
 
-
 //! Represents number token.
 class TokenNumber : public Token{
 	double m_value; //!< Number value
@@ -14,25 +13,32 @@ public:
 	explicit TokenNumber(double d);
 	
 	/**
-	 * Returns result of the operation as a number
+	 * Returns held value as a number
 	 * @param[in,out]	tec	evaluation context
  	 * @returns				result
 	 */
 	Token * evaluateNumberSub(TokenEvaluationContext & tec) const override;
 	
 	/**
-	 * Returns result of the operation as a string
+	 * Returns held value as a string
 	 * @param[in,out]	tec	evaluation context
  	 * @returns				result
 	 */
 	Token * evaluateStringSub(TokenEvaluationContext & tec) const override;
 	
 	/**
-	 * Returns result of the operation as a variable name
+	 * Throws exception
 	 * @param[in,out]	tec	evaluation context
  	 * @returns				result
 	 */
-	Token * evaluateVarnameSub(TokenEvaluationContext & tec) const override;
+	Token * evaluateArraySub(TokenEvaluationContext & tec);
+	
+	/**
+	 * Throws exception
+	 * @param[in,out]	tec	evaluation context
+ 	 * @returns				result
+	 */
+	TokenWrapper * evaluateReferenceSub(TokenEvaluationContext & tec) const override;
 	
 	/**
 	 * Returns value, same as evaluateNumberSub
@@ -47,6 +53,14 @@ public:
  	 * @returns				true or false
 	 */
 	bool evaluateBoolSub(TokenEvaluationContext & tec) const override;
+	
+	/**
+	 * Throws exception
+	 * @param[in]		index	index
+	 * @param[in,out]	tec		evaluation context
+ 	 * @returns					result
+	 */
+	TokenWrapper * getReferenceAtIndexSub(Token * index, TokenEvaluationContext & tec) const override;
 	
 	/**
 	 * Returns number

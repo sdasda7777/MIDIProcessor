@@ -2,57 +2,58 @@
 
 #include "Tokens_Token.hpp"
 
-//! Represents condition.
-class TokenIf : public Token{
-	Token * m_condition; //!< Pointer to condition of the if
-	Token * m_if; //!< Pointer to expression to be evaluated if true
-	Token * m_else; //!< Pointer to expression to be evaluated otherwise
+//! Represents indexation token.
+class TokenIndex : public Token{
+	Token * m_collection; //!< Pointers to the base collection
+	Token * m_index; //!< Pointer to the index
 	
 public:
 
 	/**
-	 * Creates instance of an if token
- 	 * @param[in]	condition	pointer to condition
- 	 * @param[in]	ifcode		pointer to if block
-  	 * @param[in]	elsecode	pointer to else block
+	 * Creates instance of an index token
+ 	 * @param[in]	lhs	left hand side of the operator
+ 	 * @param[in]	rhs	right hand side of the operator
 	 */
-	explicit TokenIf(Token * condition, Token * ifcode, Token * elsecode);
+	explicit TokenIndex(Token * collection, Token * index);
 	
 	/**
 	 * Destructor - frees child tokens
 	 */
-	~TokenIf();
+	~TokenIndex(){
+		delete m_collection;
+		delete m_index;
+	}
 	
 	/**
-	 * Throws exception
+	 * Returns result of the operation as a number
 	 * @param[in,out]	tec	evaluation context
  	 * @returns				result
 	 */
 	Token * evaluateNumberSub(TokenEvaluationContext & tec) const override;
 	
 	/**
-	 * Throws exception
+	 * Returns result of the operation as a string
 	 * @param[in,out]	tec	evaluation context
  	 * @returns				result
 	 */
 	Token * evaluateStringSub(TokenEvaluationContext & tec) const override;
 	
 	/**
-	 * Throws exception
+	 * Returns result of the operation as an array
 	 * @param[in,out]	tec	evaluation context
  	 * @returns				result
 	 */
 	Token * evaluateArraySub(TokenEvaluationContext & tec);
 	
 	/**
-	 * Throws exception
+	 * Returns reference to the value index points at
 	 * @param[in,out]	tec	evaluation context
  	 * @returns				result
 	 */
 	TokenWrapper * evaluateReferenceSub(TokenEvaluationContext & tec) const override;
 	
 	/**
-	 * Throws exception
+	 * Returns result of the operation, type independent
 	 * @param[in,out]	tec	evaluation context
  	 * @returns				result
 	 */
@@ -66,7 +67,7 @@ public:
 	bool evaluateBoolSub(TokenEvaluationContext & tec) const override;
 	
 	/**
-	 * Throws exception
+	 * Returns stuff
 	 * @param[in]		index	index
 	 * @param[in,out]	tec		evaluation context
  	 * @returns					result

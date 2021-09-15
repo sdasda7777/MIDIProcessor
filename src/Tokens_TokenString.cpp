@@ -32,14 +32,20 @@ Token * TokenString::evaluateNumberSub(TokenEvaluationContext & tec) const{
 Token * TokenString::evaluateStringSub(TokenEvaluationContext & tec) const{
 	return new TokenString(m_value, true);
 }
-Token * TokenString::evaluateVarnameSub(TokenEvaluationContext & tec) const{
-	throw std::string("Syntax error: expected variable, got string\nIn '") + ((Token *)tec.getRootNode())->printContent() + "'";
+Token * TokenString::evaluateArraySub(TokenEvaluationContext & tec){
+	throw std::string("Syntax error: expected array, got string\nIn '") + ((Token *)tec.getRootNode())->printContent() + "'";
+}
+TokenWrapper * TokenString::evaluateReferenceSub(TokenEvaluationContext & tec) const{
+	throw std::string("Syntax error: expected reference, got string\nIn '") + ((Token *)tec.getRootNode())->printContent() + "'";
 }
 Token * TokenString::evaluateInstanceSub(TokenEvaluationContext & tec) const{
 	return new TokenString(m_value, true);
 }
 bool TokenString::evaluateBoolSub(TokenEvaluationContext & tec) const{
 	return m_value != "";
+}
+TokenWrapper * TokenString::getReferenceAtIndexSub(Token * index, TokenEvaluationContext & tec) const{
+	throw std::string("Syntax error: expected indexable object, got string\nIn '") + ((Token *)tec.getRootNode())->printContent() + "'";
 }
 std::string TokenString::printContentSub() const {
 	return toStringSub();

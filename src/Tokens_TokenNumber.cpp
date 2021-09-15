@@ -11,14 +11,20 @@ Token * TokenNumber::evaluateNumberSub(TokenEvaluationContext & tec) const{
 Token * TokenNumber::evaluateStringSub(TokenEvaluationContext & tec) const{
 	return new TokenString(toStringSub(), true);
 }
-Token * TokenNumber::evaluateVarnameSub(TokenEvaluationContext & tec) const{
-	throw std::string("Syntax error: expected variable, got number");
+Token * TokenNumber::evaluateArraySub(TokenEvaluationContext & tec){
+	throw std::string("Syntax error: expected array, got number");
+}
+TokenWrapper * TokenNumber::evaluateReferenceSub(TokenEvaluationContext & tec) const{
+	throw std::string("Syntax error: expected reference, got number");
 }
 Token * TokenNumber::evaluateInstanceSub(TokenEvaluationContext & tec) const{
 	return new TokenNumber(m_value);
 }
 bool TokenNumber::evaluateBoolSub(TokenEvaluationContext & tec) const{
 	return m_value != 0;
+}
+TokenWrapper * TokenNumber::getReferenceAtIndexSub(Token * index, TokenEvaluationContext & tec) const{
+	throw std::string("Syntax error: expected indexable object, got number\nIn '") + ((Token *)tec.getRootNode())->printContent() + "'";
 }
 std::string TokenNumber::printContentSub() const {
 	return toString();

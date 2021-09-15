@@ -13,10 +13,12 @@
 #include "Tokens_TokenString.hpp"
 #include "Tokens_TokenVariable.hpp"
 #include "Tokens_TokenOperator.hpp"
+#include "Tokens_TokenIndex.hpp"
 #include "Tokens_TokenFunction.hpp"
 #include "Tokens_TokenScope.hpp"
 #include "Tokens_TokenIf.hpp"
 #include "Tokens_TokenWhile.hpp"
+#include "TokenWrapper.hpp"
 #include "StaticMethods.hpp"
 #include "TokenEvaluationContext.hpp"
 
@@ -80,18 +82,20 @@ std::vector<std::string> StaticMethods::LexicallySplitString(const std::string &
 			}else if(isspace(code[i])){
 				tokenSoFar = "";
 			}else if(	code[i] == ',' || code[i] == ';' || code[i] == '(' || code[i] == ')' || 
-						code[i] == '{' || code[i] == '}' ||	code[i] == '*' || code[i] == '/' ||
-						code[i] == '+' || code[i] == '-' || code[i] == '=' || code[i] == '!' ||
-						code[i] == '>' || code[i] == '<' || code[i] == '~' || code[i] == '&' ||
-						code[i] == '^' || code[i] == '|' || code[i] == '%' || code[i] == '#'){
+						code[i] == '{' || code[i] == '}' ||	code[i] == '[' || code[i] == ']' || 
+						code[i] == '*' || code[i] == '/' ||	code[i] == '+' || code[i] == '-' ||
+						code[i] == '=' || code[i] == '!' || code[i] == '>' || code[i] == '<' ||
+						code[i] == '~' || code[i] == '&' ||	code[i] == '^' || code[i] == '|' ||
+						code[i] == '%' || code[i] == '#'){
 				ret.push_back(std::string(tokenSoFar));
 				tokenSoFar = "";
 			}else if(code_length > i+1 && (isspace(code[i+1]) || 
 					code[i+1] == ',' || code[i+1] == ';' || code[i+1] == '(' || code[i+1] == ')' ||
-					code[i+1] == '{' || code[i+1] == '}' ||	code[i+1] == '*' || code[i+1] == '/' || 
-					code[i+1] == '+' || code[i+1] == '-' || code[i+1] == '=' || code[i+1] == '!' ||
-					code[i+1] == '>' || code[i+1] == '<' || code[i+1] == '~' || code[i+1] == '&' ||
-					code[i+1] == '^' || code[i+1] == '|' || code[i+1] == '%' || code[i+1] == '#')){
+					code[i+1] == '{' || code[i+1] == '}' ||	code[i+1] == '[' || code[i+1] == ']' ||
+					code[i+1] == '*' || code[i+1] == '/' || code[i+1] == '+' || code[i+1] == '-' ||
+					code[i+1] == '=' || code[i+1] == '!' ||	code[i+1] == '>' || code[i+1] == '<' ||
+					code[i+1] == '~' || code[i+1] == '&' ||	code[i+1] == '^' || code[i+1] == '|' ||
+					code[i+1] == '%' || code[i+1] == '#')){
 				ret.push_back(std::string(tokenSoFar));
 				tokenSoFar = "";
 			}
@@ -99,10 +103,11 @@ std::vector<std::string> StaticMethods::LexicallySplitString(const std::string &
 			if(!escaped){
 				if(isspace(code[i+1]) || 
 					code[i+1] == ',' || code[i+1] == ';' || code[i+1] == '(' || code[i+1] == ')' ||
-					code[i+1] == '{' || code[i+1] == '}' || code[i+1] == '*' || code[i+1] == '/' || 
-					code[i+1] == '+' || code[i+1] == '-' || code[i+1] == '=' || code[i+1] == '!' ||
-					code[i+1] == '>' || code[i+1] == '<' || code[i+1] == '~' || code[i+1] == '&' ||
-					code[i+1] == '^' || code[i+1] == '|' || code[i+1] == '%' || code[i+1] == '#'){
+					code[i+1] == '{' || code[i+1] == '}' || code[i+1] == '[' || code[i+1] == ']' ||
+					code[i+1] == '*' || code[i+1] == '/' || code[i+1] == '+' || code[i+1] == '-' ||
+					code[i+1] == '=' || code[i+1] == '!' || code[i+1] == '>' || code[i+1] == '<' ||
+					code[i+1] == '~' || code[i+1] == '&' ||	code[i+1] == '^' || code[i+1] == '|' ||
+					code[i+1] == '%' || code[i+1] == '#'){
 						ret.push_back(std::string(tokenSoFar));
 						tokenSoFar = "";
 				}
@@ -199,21 +204,23 @@ std::string StaticMethods::PrettyPrintDouble(double d){
 	return ret;
 }
 
-std::vector<Token*> StaticMethods::TestAndTransformArguments(TokenEvaluationContext & tec, const std::string & name, const std::vector<Token*> & tokens, const std::function <bool(size_t)>& paramCountComparator, std::vector<Token_Type> expectedParamTypes){
+std::vector<std::pair<bool,void*>> StaticMethods::TestAndTransformArguments(TokenEvaluationContext & tec, const std::string & name, const std::vector<Token*> & tokens, const std::function <bool(size_t)>& paramCountComparator, std::vector<Token_Type> expectedParamTypes){
 	if(!paramCountComparator(tokens.size()))
 		throw std::string("Syntax error: Function ") + name + " called with invalid amount of arguments\nIn '" + ((Token *)tec.getRootNode())->printContent() + "'";
 	
-	std::vector<Token*> ret;
+	std::vector<std::pair<bool, void*>> ret;
 	try{
 		for(size_t i = 0; i < tokens.size(); ++i){
 			Token_Type exptype = expectedParamTypes[i % expectedParamTypes.size()];
 		
 			if(exptype == TokNumber){
-				ret.push_back(tokens[i]->evaluateNumber(tec));
+				ret.push_back(std::make_pair(true, tokens[i]->evaluateNumber(tec)));
 			}else if(exptype == TokString){
-				ret.push_back(tokens[i]->evaluateString(tec));
+				ret.push_back(std::make_pair(true, tokens[i]->evaluateString(tec)));
+			}else if(exptype == TokArray){
+				ret.push_back(std::make_pair(true, tokens[i]->evaluateArray(tec)));
 			}else if(exptype == TokVariable){
-				ret.push_back(tokens[i]->evaluateVarname(tec));
+				ret.push_back(std::make_pair(false, tokens[i]->evaluateReference(tec)));
 			}else{
 				throw std::string("Syntax error: Function ") + name + " called with invalid argument number " + std::to_string(i+1) + "\nIn '" + ((Token *)tec.getRootNode())->printContent() + "'";
 			}
@@ -221,9 +228,12 @@ std::vector<Token*> StaticMethods::TestAndTransformArguments(TokenEvaluationCont
 		
 		return ret;
 	}catch(std::string excstr){
-		while(ret.size() > 0){
-			delete ret.back();
-			ret.pop_back();
+		for(size_t i = 0; i < ret.size(); ++i){
+			if(ret[i].first){
+				delete (Token*)ret[i].second;
+			}else{
+				delete (TokenWrapper*)ret[i].second;
+			}
 		}
 		throw excstr;
 	}
@@ -350,13 +360,43 @@ Token * StaticMethods::BuildATokenTree(const std::vector<std::string> & lexedExp
 				
 				operators.push( i );
 				wasOperandLast = false;
-			}else if(lexedExpression[i] == "(" || lexedExpression[i] == "{"){
-				if(wasOperandLast)
+			}else if(lexedExpression[i] == "[" || lexedExpression[i] == "(" || lexedExpression[i] == "{"){
+				if((!wasOperandLast && lexedExpression[i] == "[") || (wasOperandLast && lexedExpression[i] != "["))
 					throw std::string( "Syntax error: expected operator, got '") + lexedExpression[i] + "'";
-				if(lexedExpression[i] == "{")
+				if(lexedExpression[i] != "(")
 					argumentCounts.push(0);
 				operators.push( i );
 				wasOperandLast = false;
+			}else if(lexedExpression[i] == "]"){
+				if(!wasOperandLast && ( i < 1 || lexedExpression[i-1] != "["))
+					throw std::string( "Syntax error: expected operand, got '") + lexedExpression[i] + "'";
+				
+				while(operators.size() > 0 && 
+					((strref = OperatorToString(operators.top(), lexedExpression)) || true) && 
+					(TokenOperator::isValidOperator(*strref, topor))){
+					EmplaceOperator(operands, *strref, topor, argumentCounts.top());
+					operators.pop();
+				}
+				
+				if(operators.size() == 0)
+					throw std::string( "Syntax error: unexpected '") + lexedExpression[i] + "'";
+					
+				if( operators.size() > 0 && operators.top() >= 0 && lexedExpression[operators.top()] == "["){					
+					if(argumentCounts.size() == 0 || argumentCounts.top() != 1)
+						throw std::string("Syntax error: multiple indexes supplied for operator []");
+					
+					Token * rhs = operands.top();
+					operands.pop();
+					--argumentCounts.top();
+					Token * lhs = operands.top();
+					operands.pop();
+					--argumentCounts.top();
+					
+					operands.push(new TokenIndex(lhs, rhs));
+					operators.pop();
+					argumentCounts.pop();
+				}
+				wasOperandLast = true;
 			}else if(lexedExpression[i] == ")"){
 				if(!wasOperandLast && ( i < 1 || lexedExpression[i-1] != "("))
 					throw std::string( "Syntax error: expected operand, got '") + lexedExpression[i] + "'";
@@ -555,7 +595,7 @@ void StaticMethods::TryEmplaceControlStructures(std::stack<Token *> & operands, 
 				operands.pop();
 				--argumentCounts.top();
 				
-				operands.push(new TokenIf(condition, ifbody, NULL));
+				operands.push(new TokenIf(condition, ifbody, nullptr));
 				operators.pop();
 				++argumentCounts.top();
 			}

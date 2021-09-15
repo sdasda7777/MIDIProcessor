@@ -102,11 +102,18 @@ Following is list of variables that get filled by processor before every executi
 | Name | Meaning |
 |---|---|
 | DELTA | Amount of time that passed since last message |
-| SOURCE_PORT | Name of the port that sent current MIDI message |
+| INPUT_PORT | Name of the port that sent current MIDI message |
 | MESSAGE_TYPE | Type of the MIDI message |
 | CHANNEL | Channel the MIDI message got send on |
 | BYTE_1 | First data byte of the MIDI message |
 | BYTE_2 | Second data byte of the MIDI message (or -1 if there wasn't one) |
+
+Following is list of constant variables that get filled by processor before first execution of the script
+
+| Name | Meaning |
+|---|---|
+| INPUT_PORTS | Array containing names of inputs ports passed to MIDIProcessor as parameter |
+| OUTPUT_PORTS | Array containing names of outputs ports passed to MIDIProcessor as parameter |
 
 ### Comments
 When you write `//`, rest of the line gets ignored, so you can add comments to your scripts explaining code that might be harder to understand.

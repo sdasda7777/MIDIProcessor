@@ -4,6 +4,7 @@
 #include "Tokens_TokenOperator.hpp"
 #include "Tokens_TokenNumber.hpp"
 #include "Tokens_TokenString.hpp"
+#include "TokenWrapper.hpp"
 
 /*
 	Order taken from:
@@ -57,28 +58,30 @@ Token * TokenOperator::evaluateNumberSub(TokenEvaluationContext & tec) const{
 		}
 		
 		if(mor == PostIncDec || operation == "++d" || operation == "--d"){
-			r2 = m_operands[0]->evaluateVarname(tec);
-			std::string varname = ((TokenString*)r2)->getCleanString();
-					
-			Token * val = tec.getVariable(varname);
-			if(val == nullptr)
+			TokenWrapper * tw = m_operands[0]->evaluateReference(tec);
+			
+			if(tw->getContentPointer() == nullptr)
 				throw std::string("Runtime error: variable ") + (mor == PostIncDec? "left of postfix ": "right of prefix ") + operation + " holds no value\nIn '" + ((Token *)tec.getRootNode())->printContent() + "'";
 			
-			Token * typesfty = val->evaluateNumber(tec);
-			delete typesfty;
+			try{
+				Token * tpsfty = tw->getContentPointer()->evaluateNumber(tec);
+				delete tpsfty;
+			}catch(std::string excp){
+				throw excp;
+			}
 			
 			if(operation == "d++"){
-				rr = new TokenNumber(((TokenNumber*)val)->getValue());
-				((TokenNumber*)val)->increment(1);
+				rr = tw->getContentPointer()->evaluateNumber(tec);
+				((TokenNumber*)tw->getContentPointer())->increment(1);
 			}else if(operation == "++d"){
-				((TokenNumber*)val)->increment(1);
-				rr = new TokenNumber(((TokenNumber*)val)->getValue());
+				((TokenNumber*)tw->getContentPointer())->increment(1);
+				rr = tw->getContentPointer()->evaluateNumber(tec);
 			}else if(operation == "d--"){
-				rr = new TokenNumber(((TokenNumber*)val)->getValue());
-				((TokenNumber*)val)->decrement(1);
+				rr = tw->getContentPointer()->evaluateNumber(tec);
+				((TokenNumber*)tw->getContentPointer())->decrement(1);
 			}else if(operation == "--d"){
-				((TokenNumber*)val)->decrement(1);
-				rr = new TokenNumber(((TokenNumber*)val)->getValue());
+				((TokenNumber*)tw->getContentPointer())->decrement(1);
+				rr = tw->getContentPointer()->evaluateNumber(tec);
 			}
 		}else if(operation == "+d" || operation == "-d"){
 			if(operation == "+d"){
@@ -146,31 +149,24 @@ Token * TokenOperator::evaluateNumberSub(TokenEvaluationContext & tec) const{
 				rr = new TokenNumber(0);
 			}
 		}else if(mor == Assignment){
-			Token * varref = m_operands[0]->evaluateVarname(tec);
-			std::string varname = ((TokenString*)varref)->getCleanString();
-			delete varref;
+			rr = m_operands[1]->evaluateInstance(tec);
 			
-			Token * res = m_operands[1]->evaluateInstance(tec);
-			
-			tec.setVariable(varname, res);
-
-			rr = res->evaluateInstance(tec);
+			TokenWrapper * varref = m_operands[0]->evaluateReference(tec);
+			varref->setContentPointer(rr->evaluateInstance(tec));
 		}else{
 			throw std::string("Syntax error: use of unimplemented operator ") + operation + " \nIn '" + ((Token *)tec.getRootNode())->printContent() + "'";
 		}
 		
-		if(r1 != nullptr && mor != Assignment && mor != PostIncDec && operation != "++d" && operation != "--d")
+		if(r1 != nullptr && mor != Assignment && mor != PostIncDec && operation != "++d" && operation != "--d"){
 			delete r1;
-		if(r2 != nullptr && mor != Assignment)
 			delete r2;
-			
+		}	
 		return rr;
-	
 	}catch(std::string excp){
-		if(r1 != nullptr && mor != Assignment && mor != PostIncDec && operation != "++d" && operation != "--d")
-			delete r1;
-		if(r2 != nullptr && mor != Assignment)
-			delete r2;
+		if(mor != Assignment && mor != PostIncDec && operation != "++d" && operation != "--d"){
+			if(r1 != nullptr) delete r1;
+			if(r2 != nullptr) delete r2;
+		}
 		throw excp;
 	}
 }
@@ -205,29 +201,31 @@ Token * TokenOperator::evaluateStringSub(TokenEvaluationContext & tec) const{
 		
 	return rr;
 }
-Token * TokenOperator::evaluateVarnameSub(TokenEvaluationContext & tec) const{
+Token * TokenOperator::evaluateArraySub(TokenEvaluationContext & tec){
+	throw std::string("Syntax error: prefix, infix nor postfix operator can return array") + " \nIn '" + ((Token *)tec.getRootNode())->printContent() + "'";
+}
+TokenWrapper * TokenOperator::evaluateReferenceSub(TokenEvaluationContext & tec) const{
 	std::string operation = toString();
 	
 	if(operation != "--d" && operation != "++d")
 		throw std::string("Syntax error: value used as a reference near") + operation + " \nIn '" + ((Token *)tec.getRootNode())->printContent() + "'";
 	
-	Token * tmp = m_operands[0]->evaluateVarname(tec);
+	TokenWrapper * tw = m_operands[0]->evaluateReference(tec);
 	
 	try{
-		Token * tpsfty = tec.getVariable(((TokenString*)tmp)->getCleanString())->evaluateNumber(tec);
+		Token * tpsfty = tw->getContentPointer()->evaluateNumber(tec);
 		delete tpsfty;
 	}catch(std::string excp){
-		delete tmp;
 		throw excp;
 	}
 	
 	if(operation == "--d"){
-		((TokenNumber*)tec.getVariable(((TokenString*)tmp)->getCleanString()))->decrement(1);
+		((TokenNumber*)tw->getContentPointer())->decrement(1);
 	}else if(operation == "++d"){
-		((TokenNumber*)tec.getVariable(((TokenString*)tmp)->getCleanString()))->increment(1);
+		((TokenNumber*)tw->getContentPointer())->increment(1);
 	}
 	
-	return tmp;
+	return tw;
 }
 Token * TokenOperator::evaluateInstanceSub(TokenEvaluationContext & tec) const{
 	if(toString() == "#"){
@@ -241,6 +239,9 @@ bool TokenOperator::evaluateBoolSub(TokenEvaluationContext & tec) const{
 	bool ret = tmp->evaluateBool(tec);
 	delete tmp;
 	return ret;
+}
+TokenWrapper * TokenOperator::getReferenceAtIndexSub(Token * index, TokenEvaluationContext & tec) const{
+	throw std::string("Syntax error: prefix, infix nor postfix operator can return array");
 }
 std::string TokenOperator::printContentSub() const {
 	std::string operation = toString();
