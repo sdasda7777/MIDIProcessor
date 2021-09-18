@@ -27,7 +27,7 @@ endif
 endif
 endif
 
-RTMIDIDIR = ../rtmidi
+RTMIDIDIR = rtmidi
 
 CXXL = g++
 CXXLF = -D$(BACKENDDEF) -Wall -pedantic -g3 $(BACKENDOPTS)

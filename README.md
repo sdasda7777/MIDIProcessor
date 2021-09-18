@@ -1,10 +1,9 @@
 # MIDIProcessor
-Processes live MIDI input based on passed script, allowing for filtering, editing, re-routing, duplicating and splitting messages. Library used for interaction with MIDI is [rtmidi](https://github.com/thestk/rtmidi).
+Processes live MIDI input based on passed script, allowing for filtering, editing, re-routing, duplicating and splitting messages.
 
 Due to the fact I took lot of code from my school project and I might want to use it again in other school projects, please consider filing issue before making forks or pull requests. I am very open to implementing new stuff if I find your use case reasonable.
 
 ## Building
-Download [rtmidi repository](https://github.com/thestk/rtmidi). And add the option `'RTMIDIDIR=<path to rtmidi>'` to your make command, or place it at `../rtmidi`, the default location that MIDIProcessor checks. You don't need to build it yourself, since only a small portion of the library is used it is built automatically.
 
 ### Building on Linux
 Run `make compile_linux` in the cloned repo. This builds for ALSA by default. You can change this to Jack by adding the option `BACKEND=jack`.
