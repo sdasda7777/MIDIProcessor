@@ -34,9 +34,9 @@ public:
 	Token * evaluateStringSub(TokenEvaluationContext & tec) const override;
 	
 	/**
-	 * Returns deep copy
+	 * Returns shallow copy
 	 * @param[in,out]	tec	evaluation context
- 	 * @returns				result
+ 	 * @returns				shallow copy
 	 */
 	Token * evaluateArraySub(TokenEvaluationContext & tec);
 	
@@ -48,9 +48,9 @@ public:
 	TokenWrapper * evaluateReferenceSub(TokenEvaluationContext & tec) const override;
 	
 	/**
-	 * Returns value, same as evaluateArraySub
+	 * Returns deep copy
 	 * @param[in,out]	tec	evaluation context
- 	 * @returns				result
+ 	 * @returns				deep copy
 	 */
 	Token * evaluateInstanceSub(TokenEvaluationContext & tec) const override;
 	
@@ -80,10 +80,4 @@ public:
  	 * @returns	printable string
 	 */
 	std::string toStringSub() const override;
-	
-	/**
-	 * Returns into which category operator belongs
- 	 * @returns	operator rank
-	 */
-	Operator_Rank getRank() const;
 };

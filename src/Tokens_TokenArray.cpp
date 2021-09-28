@@ -30,7 +30,13 @@ TokenWrapper * TokenArray::evaluateReferenceSub(TokenEvaluationContext & tec) co
 	throw std::string("Syntax error: array evaluation cannot result in reference");
 }
 Token * TokenArray::evaluateInstanceSub(TokenEvaluationContext & tec) const{
-	throw std::string("Syntax error: array evaluation cannot result in instance");
+	std::vector<Token *> newArrayElements;
+	
+	for(size_t i = 0; i < m_elements.size(); ++i){
+		newArrayElements.push_back(m_elements[i]->getContentPointer()->evaluateInstance(tec));
+	}
+	
+	return new TokenArray(newArrayElements);
 }
 bool TokenArray::evaluateBoolSub(TokenEvaluationContext & tec) const{
 	return true;

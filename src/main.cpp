@@ -140,18 +140,17 @@ int main(int argc, char ** argv){
 				for(size_t i = 0; i < inputDevices.size(); ++i){
 					inputPortNames.push_back(new TokenString(inputDevices[i], true));
 				}
-				tec->setVariable("INPUT_PORTS", new TokenArray(inputPortNames), true);
+				tec->setVariable("INPUT_PORTS", new TokenArray(inputPortNames));
 				std::vector<Token *> outputPortNames;
 				for(size_t i = 0; i < outputDevices.size(); ++i){
 					outputPortNames.push_back(new TokenString(outputDevices[i], true));
 				}
-				tec->setVariable("OUTPUT_PORTS", new TokenArray(outputPortNames), true);
+				tec->setVariable("OUTPUT_PORTS", new TokenArray(outputPortNames));
 				
 				//Installs an interrupt handler function.
 				done = false;
 				(void) signal(SIGINT, finish);
 				std::cout << "Processing in progress, quit with ctrl+c" << std::endl;
-				
 				
 				std::vector<unsigned char> message;
 				while( !done ) {

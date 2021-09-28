@@ -54,8 +54,8 @@ TokenEvaluationContext::~TokenEvaluationContext(){
 	}
 	m_openOutputPorts.clear();
 	
-	for(std::map<std::string, std::pair<bool, TokenWrapper*>>::iterator it = m_variables.begin(); it != m_variables.end(); ++it){
-		delete it->second.second;
+	for(std::map<std::string, TokenWrapper*>::iterator it = m_variables.begin(); it != m_variables.end(); ++it){
+		delete it->second;
 	}
 	m_variables.clear();
 }
@@ -73,29 +73,25 @@ void TokenEvaluationContext::printLn(std::string text) const {
 }
 
 TokenWrapper * TokenEvaluationContext::getVariable(std::string name){	
-	std::map<std::string, std::pair<bool, TokenWrapper*>>::iterator varit = m_variables.find(name);
+	std::map<std::string, TokenWrapper*>::iterator varit = m_variables.find(name);
 	if(varit != m_variables.end()){
-		return varit->second.second;
+		return varit->second;
 	}
 	return nullptr;
 }
 
-void TokenEvaluationContext::setVariable(std::string name, Token * newval, bool readOnly){
-	std::map<std::string, std::pair<bool, TokenWrapper*>>::iterator varit = m_variables.find(name);
+void TokenEvaluationContext::setVariable(std::string name, Token * newval){
+	std::map<std::string, TokenWrapper*>::iterator varit = m_variables.find(name);
 	if(varit != m_variables.end()){
-		if(varit->second.first)
-			throw std::string("Runtime error: variable '") + name + "' cannot be modified, because it was declared using keyword 'const'";
-		delete varit->second.second;
+		delete varit->second;
 	}
-	m_variables[name] = std::make_pair(readOnly, new TokenWrapper(newval));
+	m_variables[name] = new TokenWrapper(newval);
 }
 
 bool TokenEvaluationContext::eraseVariable(std::string name){
-	std::map<std::string, std::pair<bool, TokenWrapper*>>::iterator varit = m_variables.find(name);
+	std::map<std::string, TokenWrapper*>::iterator varit = m_variables.find(name);
 	if(varit != m_variables.end()){
-		if(varit->second.first)
-			throw std::string("Runtime error: variable '") + name + "' cannot be erased, because it was declared using keyword 'const'";
-		delete varit->second.second;
+		delete varit->second;
 		m_variables.erase(varit);
 		return true;
 	}

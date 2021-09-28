@@ -11,7 +11,7 @@ class TokenWrapper;
 */
 class TokenEvaluationContext{
 	Token * m_rootNode; //!< root token of the evaluation
-	std::map<std::string, std::pair<bool, TokenWrapper*>> m_variables; //!< variables
+	std::map<std::string, TokenWrapper*> m_variables; //!< variables
 	std::vector<std::string> m_paramOutputPortNames;
 	std::map<std::string, RtMidiOut*> m_openOutputPorts;
 	
@@ -58,9 +58,8 @@ public:
 	 * Sets a variable, deletes old if one existed
 	 * @param[in]	name		variable name
 	 * @param[in]	newval		value to be saved
-	 * @param[in]	readOnly	whether variable should be read only (const, unmutable)
 	 */
-	void setVariable(std::string name, Token * newval, bool readOnly = false);
+	void setVariable(std::string name, Token * newval);
 	
 	/**
 	 * Attempts to erase a variable
