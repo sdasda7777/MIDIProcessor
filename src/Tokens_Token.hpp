@@ -18,10 +18,11 @@ enum Token_Type : unsigned int
 	TokVariable = 8,
 	TokFunction = 16,
 
-	TokNumber = 32,
-	TokString = 64,
-	TokArray = 128/*,
-	TokObject = 256*/
+	TokInstance = 32,
+	TokNumber = 64,
+	TokString = 128,
+	TokArray = 256/*,
+	TokObject = 512*/
 }; //!< used purely for specifying expected parameter types
 
 //! Parent to all token types.

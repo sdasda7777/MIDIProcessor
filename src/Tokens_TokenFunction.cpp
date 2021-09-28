@@ -5,6 +5,7 @@
 #include "Tokens_TokenFunction.hpp"
 #include "Tokens_TokenNumber.hpp"
 #include "Tokens_TokenString.hpp"
+#include "Tokens_TokenArray.hpp"
 #include "TokenWrapper.hpp"
 
 TokenFunction::TokenFunction(std::string n, std::vector<Token *> args){
@@ -48,7 +49,17 @@ Token * TokenFunction::evaluateInstanceSub(TokenEvaluationContext & tec) const{
 	Token * rr;
 	
 	try{	
-		if(m_name == "nStr"){
+		if(m_name == "Array"){
+			inputs = StaticMethods::TestAndTransformArguments(tec, m_name, m_arguments, [](size_t s)->bool{return s >= 0;}, {TokInstance});
+			
+			std::vector<Token *> arr;
+			
+			for(size_t i = 0; i < inputs.size(); ++i){
+				arr.push_back(((Token*)inputs[i].second)->evaluateInstance(tec));
+			}
+			
+			rr = new TokenArray(arr);
+		}else if(m_name == "nStr"){
 			inputs = StaticMethods::TestAndTransformArguments(tec, m_name, m_arguments, [](size_t s)->bool{return s == 2;}, {TokNumber});
 			
 			std::ostringstream oss;

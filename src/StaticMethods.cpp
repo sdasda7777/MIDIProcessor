@@ -213,7 +213,9 @@ std::vector<std::pair<bool,void*>> StaticMethods::TestAndTransformArguments(Toke
 		for(size_t i = 0; i < tokens.size(); ++i){
 			Token_Type exptype = expectedParamTypes[i % expectedParamTypes.size()];
 		
-			if(exptype == TokNumber){
+			if(exptype == TokInstance){
+				ret.push_back(std::make_pair(true, tokens[i]->evaluateInstance(tec)));
+			}else if(exptype == TokNumber){
 				ret.push_back(std::make_pair(true, tokens[i]->evaluateNumber(tec)));
 			}else if(exptype == TokString){
 				ret.push_back(std::make_pair(true, tokens[i]->evaluateString(tec)));

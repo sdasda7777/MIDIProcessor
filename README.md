@@ -67,6 +67,7 @@ Following is the table of functions.
 
 | Return type, name and parameters | Description |
 |---|---|
+| array Array(any a*) | Returns array consisting of values passed as parameters. |
 | string nStr(number n, number decimalPlaces) | Returns number n as string with decimal places as specified by second parameter. |
 | number sNum(string s, variable v) | Attempts to parse number from string s and place it to variable v. Returns 0 if that is not possible. |
 | number strLen(string s) | Returns length of string s. |
