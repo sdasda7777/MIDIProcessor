@@ -21,6 +21,15 @@ std::map<std::string, Token*> variables;
 bool done;
 static void finish(int ignore){ done = true; }
 
+/*
+NOTE: ADBeta
+I would suggest using an RtMidi Callback function, and use the RtMidi 
+unsigned char array, instead of vector as it can be much faster. 
+
+I have a program called MIDIPad which uses these methods in different places,
+which may be useful if this project is still open for improvement.
+*/
+
 int main(int argc, char ** argv){
 	srand (time(NULL));
 	RtMidiIn * midiIn = new RtMidiIn();
